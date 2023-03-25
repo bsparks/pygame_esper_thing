@@ -1,5 +1,6 @@
 import esper
-from framework.components import Position, Sprite
+import pygame
+from framework.components import Position, Scale, Sprite
 
 
 class SpriteRenderer(esper.Processor):
@@ -10,6 +11,13 @@ class SpriteRenderer(esper.Processor):
     def process(self, dt, events):
         blits = []
         for ent, (pos, sprite) in self.world.get_components(Position, Sprite):
+            image = sprite.image
+            scale = self.world.try_component(ent, Scale)
+            if scale is not None:
+                # this might be very inefficient, I'm not sure... but it works
+                image = pygame.transform.scale_by(image, (scale.x, scale.y))
+            if pos.angle != 0:
+                image = pygame.transform.rotate(image, pos.angle)
             # offset the sprite's rect based on the anchor
             px, py = pos.x, pos.y
             width, height = sprite.image.get_size()
@@ -21,7 +29,7 @@ class SpriteRenderer(esper.Processor):
                 py -= height // 2
             elif sprite.anchor_y == "bottom":
                 py -= height
-            blits.append((sprite.image, (px, py), sprite.depth))
+            blits.append((image, (px, py), sprite.depth))
         # sort by depth
         blits.sort(key=lambda x: x[2])
         # map just the blits

@@ -7,8 +7,35 @@ from yaml import YAMLObject
 @component
 class Position(YAMLObject):
     yaml_tag = "!Position"
-    x: int = 0
-    y: int = 0
+    x: float = 0
+    y: float = 0
+    angle: float = 0
+
+
+@component
+class Scale(YAMLObject):
+    yaml_tag = "!Scale"
+    x: float = 1
+    y: float = 1
+
+
+@component
+class Velocity(YAMLObject):
+    yaml_tag = "!Velocity"
+    x: float = 0
+    y: float = 0
+
+
+@component
+class Text(YAMLObject):
+    yaml_tag = "!Text"
+    text: str = ""
+    font: str = "default"
+    color: str = "white"
+    size: int = 24
+    anchor_x: str = "center"
+    anchor_y: str = "center"
+    depth: int = 0
 
 
 @component
@@ -26,6 +53,22 @@ class Sprite(YAMLObject):
         state = self.__dict__.copy()
         del state['image']
         del state['rect']
+        return state
+
+
+@component
+class Animation(YAMLObject):
+    yaml_tag = "!Animation"
+    frames: list = field(default_factory=list)
+    speed: float = 0.1
+    frame: int = 0
+    time: float = 0
+    loop: bool = True
+    playing: bool = False
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['frames']
         return state
 
 

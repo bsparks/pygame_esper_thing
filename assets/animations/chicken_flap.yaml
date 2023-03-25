@@ -1,0 +1,12 @@
+frames:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+image_name: chicken.png
+size: 32
+loop: true
+name: chicken_flap
+speed: 10
