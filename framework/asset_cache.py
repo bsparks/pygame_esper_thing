@@ -75,11 +75,21 @@ class AssetCache:
         return self.music
     
     def create_font(self, font = "Arial", size = 30):
-        if font not in self.fonts:
+        font_cache_key = f"{font}-{size}"
+        if font_cache_key not in self.fonts:
             if font.endswith(".ttf"):
                 path = os.path.join(f"{self.basePath}/fonts/", font)
-                self.fonts[font] = pygame.font.Font(path, size)
+                self.fonts[font_cache_key] = pygame.font.Font(path, size)
             else:
-                self.fonts[font] = pygame.font.SysFont(font, size)
+                self.fonts[font_cache_key] = pygame.font.SysFont(font, size)
 
-        return self.fonts[font]
+        return self.fonts[font_cache_key]
+    
+    def create_text(self, text, font = "Arial", size = 30, color = "white"):
+        text_cache_key = f"{text}-{font}-{size}-{color}"
+        if text_cache_key in self.texts:
+            return self.texts[text_cache_key]
+        font = self.create_font(font, size)
+        color = pygame.Color(color)
+        self.texts[text_cache_key] = font.render(text, True, color)
+        return self.texts[text_cache_key]

@@ -1,9 +1,8 @@
-import esper
-
+from framework.ecs import Processor
 from framework.components import Animation, Sprite
 
 
-class SpriteAnimator(esper.Processor):
+class SpriteAnimator(Processor):
     @staticmethod
     def create_frames(image, frames, size):
         frames = [image.subsurface((i * size, 0, size, size)) for i in frames]

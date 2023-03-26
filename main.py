@@ -2,17 +2,17 @@ import math
 import os
 import random
 import pygame
-import esper
 import yaml
 from dataclasses import dataclass as component
+from framework.ecs import World, Processor
 from framework.viewport import Viewport
 from framework.asset_cache import AssetCache
 from components import Wiggle
-from framework.components import Animation, Player, Position, Sprite, Agent, Text, Velocity, Scale
-from framework.systems import InputManager, SpriteRenderer
-from framework.systems.sprite_animator import SpriteAnimator
+from framework.components import AngularVelocity, Animation, Player, Position, Sprite, Agent, Text, Velocity, Scale
+from framework.systems import InputManager, SpriteRenderer, SpriteAnimator, TextRenderer
 
-class RandomMovement(esper.Processor):
+
+class RandomMovement(Processor):
     def process(self, dt, events):
         for ent, (pos, wiggle) in self.world.get_components(Position, Wiggle):
             magnitude = wiggle.magnitude
@@ -23,7 +23,7 @@ class RandomMovement(esper.Processor):
 # runs every frame, like a timer or input manager
 
 
-class Controller(esper.Processor):
+class Controller(Processor):
     def __init__(self):
         super().__init__()
         self.input = None
@@ -34,7 +34,7 @@ class Controller(esper.Processor):
                 self.world.remove_component(ent, Wiggle)
             else:
                 self.world.add_component(ent, Wiggle(magnitude=5))
-                
+
     def control_player_ship(self, dt):
         for ent, (player, pos, vel) in self.world.get_components(Player, Position, Velocity):
             thrust = 50
@@ -43,7 +43,7 @@ class Controller(esper.Processor):
             angle_radians = math.radians(pos.angle)
             vel_x = thrust * dt * math.cos(angle_radians)
             vel_y = -thrust * dt * math.sin(angle_radians)
-            
+
             if self.input.key_down(pygame.K_UP):
                 vel.x += vel_x
                 vel.y += vel_y
@@ -52,9 +52,9 @@ class Controller(esper.Processor):
                 vel.x -= vel_x
                 vel.y -= vel_y
             if self.input.key_down(pygame.K_LEFT):
-                pos.angle -= 5
-            if self.input.key_down(pygame.K_RIGHT):
                 pos.angle += 5
+            if self.input.key_down(pygame.K_RIGHT):
+                pos.angle -= 5
 
     def process(self, dt, events):
         if self.input is None:
@@ -69,7 +69,7 @@ class Controller(esper.Processor):
                 yaml.dump(ents, open("save.yaml", "w"))
 
 
-class AsteroidsPhysics(esper.Processor):
+class AsteroidsPhysics(Processor):
     def __init__(self, screen):
         super().__init__()
         self.screen = screen
@@ -77,6 +77,10 @@ class AsteroidsPhysics(esper.Processor):
     def process(self, dt, events):
         # get all entities with a position and velocity
         for ent, (pos, vel) in self.world.get_components(Position, Velocity):
+            angular_vel = self.world.try_component(ent, AngularVelocity)
+            if angular_vel is not None:
+                pos.angle += angular_vel.speed * dt
+
             # cap velocity at max_speed
             vel.x = max(min(vel.x, vel.max_speed), -vel.max_speed)
             vel.y = max(min(vel.y, vel.max_speed), -vel.max_speed)
@@ -118,6 +122,7 @@ def init(screen, world):
     world.add_processor(AsteroidsPhysics(screen))
     world.add_processor(SpriteAnimator())
     world.add_processor(SpriteRenderer(screen))
+    world.add_processor(TextRenderer(screen, assets))
     world.add_processor(Controller())
     world.add_processor(RandomMovement())
 
@@ -139,6 +144,7 @@ def init(screen, world):
         world.add_component(skull, Position(50, 300, 0))
         world.add_component(skull, Velocity(
             random.randint(10, 20), random.randint(10, 20)))
+        world.add_component(skull, AngularVelocity(10))
         world.add_component(skull, Sprite(image_name="red_skull.png",
                                           image=skull_image, rect=skull_image.get_rect()))
         world.add_component(skull, Agent(name="Skull"))
@@ -165,6 +171,11 @@ def init(screen, world):
                             image=assets.load_image("ship1.png")))
         world.add_component(ship, Player(name="Starman"))
 
+        text1 = world.create_entity()
+        world.add_component(text1, Position(screen.get_width() // 2, 24))
+        world.add_component(text1, Text(text="Asteroids!",
+                            font="PressStart2P-Regular.ttf", size=16))
+
 
 def start():
     pygame.init()
@@ -175,7 +186,7 @@ def start():
     # viewport = Viewport(screen_width // 2, screen_height // 2, 2, 2)
     viewport = Viewport(screen_width // 2, screen_height // 2, 1, 2)
     pygame.display.set_caption("ECS Game Test")
-    world = esper.World()
+    world = World()
     clock = pygame.time.Clock()
     init(viewport, world)
 
@@ -192,7 +203,7 @@ def start():
 
         # update the viewport to get the scaled surface setup
         viewport.update()
-        
+
         # clear the viewport with black
         viewport.fill((0, 0, 0))
 

@@ -28,15 +28,28 @@ class Velocity(YAMLObject):
 
 
 @component
+class AngularVelocity(YAMLObject):
+    yaml_tag = "!AngularVelocity"
+    speed: float = 0
+    max_speed: float = 100
+
+
+@component
 class Text(YAMLObject):
     yaml_tag = "!Text"
     text: str = ""
+    image: pygame.Surface = field(repr=False, default=None)
     font: str = "default"
-    color: str = "white"
+    color: tuple = (255, 255, 255)
     size: int = 24
     anchor_x: str = "center"
     anchor_y: str = "center"
     depth: int = 0
+    
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['image']
+        return state
 
 
 @component

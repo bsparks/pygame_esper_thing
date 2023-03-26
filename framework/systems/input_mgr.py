@@ -1,8 +1,10 @@
-import esper
+
 import pygame
 
+from framework.ecs import Processor
 
-class InputManager(esper.Processor):
+
+class InputManager(Processor):
     def __init__(self):
         super().__init__()
         self.mouse = {"x": 0, "y": 0, "buttons": [False, False, False]}
