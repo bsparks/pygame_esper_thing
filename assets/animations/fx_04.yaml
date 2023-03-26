@@ -1,0 +1,10 @@
+frames:
+- 0
+- 1
+- 2
+- 3
+image_name: Fx_04.png
+loop: true
+name: fx_04
+size: 64
+speed: 10

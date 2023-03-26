@@ -1,0 +1,9 @@
+frames:
+- 0
+- 1
+- 2
+image_name: Fx_02.png
+loop: true
+name: fx_02
+size: 16
+speed: 10
