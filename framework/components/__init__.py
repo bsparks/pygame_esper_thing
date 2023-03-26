@@ -24,6 +24,7 @@ class Velocity(YAMLObject):
     yaml_tag = "!Velocity"
     x: float = 0
     y: float = 0
+    max_speed: float = 100
 
 
 @component

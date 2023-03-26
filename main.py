@@ -1,15 +1,16 @@
+import math
 import os
 import random
 import pygame
 import esper
 import yaml
 from dataclasses import dataclass as component
+from framework.viewport import Viewport
 from framework.asset_cache import AssetCache
 from components import Wiggle
 from framework.components import Animation, Player, Position, Sprite, Agent, Text, Velocity, Scale
 from framework.systems import InputManager, SpriteRenderer
 from framework.systems.sprite_animator import SpriteAnimator
-
 
 class RandomMovement(esper.Processor):
     def process(self, dt, events):
@@ -33,11 +34,33 @@ class Controller(esper.Processor):
                 self.world.remove_component(ent, Wiggle)
             else:
                 self.world.add_component(ent, Wiggle(magnitude=5))
+                
+    def control_player_ship(self, dt):
+        for ent, (player, pos, vel) in self.world.get_components(Player, Position, Velocity):
+            thrust = 50
+            # the pos.angle is in degrees, and is the forward direction of the ship
+            # the ship starts at 0 degrees, which is to the right, and the sprite is facing right
+            angle_radians = math.radians(pos.angle)
+            vel_x = thrust * dt * math.cos(angle_radians)
+            vel_y = -thrust * dt * math.sin(angle_radians)
+            
+            if self.input.key_down(pygame.K_UP):
+                vel.x += vel_x
+                vel.y += vel_y
+            if self.input.key_down(pygame.K_DOWN):
+                # reverse thrust
+                vel.x -= vel_x
+                vel.y -= vel_y
+            if self.input.key_down(pygame.K_LEFT):
+                pos.angle -= 5
+            if self.input.key_down(pygame.K_RIGHT):
+                pos.angle += 5
 
     def process(self, dt, events):
         if self.input is None:
             self.input = self.world.get_processor(InputManager)
         if self.input is not None:
+            self.control_player_ship(dt)
             if self.input.key_pressed(pygame.K_SPACE):
                 self.toggle_agent_wiggle()
             if self.input.key_pressed(pygame.K_F5):
@@ -50,11 +73,14 @@ class AsteroidsPhysics(esper.Processor):
     def __init__(self, screen):
         super().__init__()
         self.screen = screen
-        self.max_velocity = 100
 
     def process(self, dt, events):
         # get all entities with a position and velocity
         for ent, (pos, vel) in self.world.get_components(Position, Velocity):
+            # cap velocity at max_speed
+            vel.x = max(min(vel.x, vel.max_speed), -vel.max_speed)
+            vel.y = max(min(vel.y, vel.max_speed), -vel.max_speed)
+
             pos.x += vel.x * dt
             pos.y += vel.y * dt
             # handle wrapping
@@ -110,7 +136,7 @@ def init(screen, world):
                 world.add_component(entity, comp)
     else:
         skull = world.create_entity()
-        world.add_component(skull, Position(400, 300, 0))
+        world.add_component(skull, Position(50, 300, 0))
         world.add_component(skull, Velocity(
             random.randint(10, 20), random.randint(10, 20)))
         world.add_component(skull, Sprite(image_name="red_skull.png",
@@ -118,28 +144,40 @@ def init(screen, world):
         world.add_component(skull, Agent(name="Skull"))
 
         blue_skull = world.create_entity()
-        world.add_component(blue_skull, Position(408, 300))
+        world.add_component(blue_skull, Position(100, 300))
         world.add_component(blue_skull, Sprite(image_name="blue_skull.png",
                                                image=blue_skull_image, rect=blue_skull_image.get_rect()))
         world.add_component(blue_skull, Agent(name="Blue Skull"))
 
         chicken = world.create_entity()
-        world.add_component(chicken, Position(420, 228))
+        world.add_component(chicken, Position(50, 100))
         world.add_component(chicken, Sprite(image_name="chicken.png",
                                             image=chicken_image, rect=chicken_image.get_rect()))
         world.add_component(chicken, chicken_flap_anim)
         world.add_component(chicken, Velocity())
         world.add_component(chicken, Scale(2, 2))
-        world.add_component(chicken, Player())
+        world.add_component(chicken, Agent(name="Chicken"))
+
+        ship = world.create_entity()
+        world.add_component(ship, Position(50, 200))
+        world.add_component(ship, Velocity())
+        world.add_component(ship, Sprite(image_name="ship1.png",
+                            image=assets.load_image("ship1.png")))
+        world.add_component(ship, Player(name="Starman"))
 
 
 def start():
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    screen_width = 1280
+    screen_height = 720
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    # viewport so that we can render all the game stuff to it, and then scale it up to the screen
+    # viewport = Viewport(screen_width // 2, screen_height // 2, 2, 2)
+    viewport = Viewport(screen_width // 2, screen_height // 2, 1, 2)
     pygame.display.set_caption("ECS Game Test")
     world = esper.World()
     clock = pygame.time.Clock()
-    init(screen, world)
+    init(viewport, world)
 
     running = True
     while running:
@@ -152,8 +190,18 @@ def start():
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
-        screen.fill((0, 0, 0))
+        # update the viewport to get the scaled surface setup
+        viewport.update()
+        
+        # clear the viewport with black
+        viewport.fill((0, 0, 0))
+
+        # update the game world, this will blit all the sprites to the viewport
         world.process(dt, events)
+
+        # draw the scaled surface onto the screen
+        screen.blit(viewport.get_render_surface(), (0, 0))
+
         pygame.display.flip()
 
 
