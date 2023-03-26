@@ -8,8 +8,8 @@ from framework.ecs import World, Processor
 from framework.viewport import Viewport
 from framework.asset_cache import AssetCache
 from components import Wiggle
-from framework.components import AngularVelocity, Animation, Player, Position, Sprite, Agent, Text, Velocity, Scale
-from framework.systems import InputManager, SpriteRenderer, SpriteAnimator, TextRenderer
+from framework.components import AngularVelocity, Animation, MountPoint, Player, Position, Sprite, Agent, Text, Velocity, Scale
+from framework.systems import InputManager, SpriteRenderer, SpriteAnimator, TextRenderer, MountingSystem
 
 
 class RandomMovement(Processor):
@@ -117,9 +117,21 @@ def init(screen, world):
         frames=SpriteAnimator.create_frames(
             chicken_image, chicken_flap_anim_data.frames, chicken_flap_anim_data.size),
     )
+    
+    #thruster_anim = assets.create_animation("thruster_1", "Thruster_01.png", 16, [0, 1, 2, 3], 10, True)
+    #assets.save_animation(thruster_anim, "thruster_1.yaml")
+    thruster_anim_data = assets.load_animation("thruster_1.yaml")
+    thruster_anim = Animation(
+        speed=thruster_anim_data.speed,
+        loop=thruster_anim_data.loop,
+        playing=True,
+        frames=SpriteAnimator.create_frames(
+            assets.load_image("Thruster_01.png"), thruster_anim_data.frames, thruster_anim_data.size),
+    )
 
     world.add_processor(InputManager())
     world.add_processor(AsteroidsPhysics(screen))
+    world.add_processor(MountingSystem())
     world.add_processor(SpriteAnimator())
     world.add_processor(SpriteRenderer(screen))
     world.add_processor(TextRenderer(screen, assets))
@@ -168,8 +180,15 @@ def init(screen, world):
         world.add_component(ship, Position(50, 200))
         world.add_component(ship, Velocity())
         world.add_component(ship, Sprite(image_name="ship1.png",
-                            image=assets.load_image("ship1.png")))
+                            image=assets.load_image("ship1.png"),
+                            rect=assets.load_image("ship1.png").get_rect()))
         world.add_component(ship, Player(name="Starman"))
+        
+        thruster = world.create_entity()
+        world.add_component(thruster, Position(50, 200))
+        world.add_component(thruster, Sprite(image_name="Thruster_01.png", image=assets.load_image("Thruster_01.png"), anchor_x="left", depth=-1))
+        world.add_component(thruster, thruster_anim)
+        world.add_component(thruster, MountPoint(parent=ship, x = -24, y = 0))
 
         text1 = world.create_entity()
         world.add_component(text1, Position(screen.get_width() // 2, 24))

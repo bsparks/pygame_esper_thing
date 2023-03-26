@@ -1,0 +1,10 @@
+frames:
+- 0
+- 1
+- 2
+- 3
+image_name: Thruster_01.png
+loop: true
+name: thruster_1
+size: 16
+speed: 10

@@ -10,6 +10,13 @@ class Position(YAMLObject):
     x: float = 0
     y: float = 0
     angle: float = 0
+    
+@component
+class MountPoint(YAMLObject):
+    yaml_tag = "!MountPoint"
+    parent: int = -1
+    x: float = 0
+    y: float = 0
 
 
 @component
