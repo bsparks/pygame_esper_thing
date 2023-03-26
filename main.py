@@ -4,7 +4,8 @@ import random
 import pygame
 import yaml
 from dataclasses import dataclass as component
-from asteroids import PlayerController, Thruster, AsteroidsPhysics
+from asteroids import DestroySystem, PlayerController, Thruster, AsteroidsPhysics
+from asteroids.components import DestroyAfter
 from framework.ecs import World
 from framework.systems.background import BackgroundSystem
 from framework.viewport import Viewport
@@ -45,6 +46,7 @@ def init(screen, world):
 
     world.add_processor(InputManager())
     world.add_processor(PlayerController())
+    world.add_processor(DestroySystem())
     world.add_processor(AsteroidsPhysics(screen))
     world.add_processor(BackgroundSystem(screen, assets))
     world.add_processor(MountingSystem())
@@ -90,6 +92,7 @@ def init(screen, world):
         world.add_component(bullet, Sprite(
             image_name=fx_02_anim_data.image_name))
         world.add_component(bullet, Velocity(0, 0))
+        world.add_component(bullet, DestroyAfter(after=4))
 
         thruster = world.create_entity()
         world.add_component(thruster, Position(50, 200))
