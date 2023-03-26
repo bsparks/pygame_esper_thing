@@ -5,10 +5,11 @@ import pygame
 import yaml
 from dataclasses import dataclass as component
 from framework.ecs import World, Processor
+from framework.systems.background import BackgroundSystem
 from framework.viewport import Viewport
 from framework.asset_cache import AssetCache
 from components import Thruster, Wiggle
-from framework.components import AngularVelocity, Animation, MountPoint, Player, Position, Sprite, Agent, Text, Velocity, Scale
+from framework.components import AngularVelocity, Animation, BackgroundImage, MountPoint, Player, Position, Sprite, Agent, Text, Velocity, Scale
 from framework.systems import InputManager, SpriteRenderer, SpriteAnimator, TextRenderer, MountingSystem
 
 
@@ -123,8 +124,7 @@ assets = AssetCache()
 
 
 def init(screen, world):
-    skull_image = assets.load_image("red_skull.png")
-    blue_skull_image = assets.load_image("blue_skull.png")
+    starfield = assets.load_image("starfield6.png")
     chicken_image = assets.load_image("chicken.png")
 
     # chicken_flap_anim = assets.create_animation("chicken_flap", "chicken.png", 32, [0, 1, 2, 3, 4, 5], 10, True)
@@ -151,9 +151,10 @@ def init(screen, world):
 
     world.add_processor(InputManager())
     world.add_processor(AsteroidsPhysics(screen))
+    world.add_processor(BackgroundSystem(screen, assets))
     world.add_processor(MountingSystem())
     world.add_processor(SpriteAnimator())
-    world.add_processor(SpriteRenderer(screen))
+    world.add_processor(SpriteRenderer(screen, assets))
     world.add_processor(TextRenderer(screen, assets))
     world.add_processor(Controller())
     world.add_processor(RandomMovement())
@@ -177,20 +178,17 @@ def init(screen, world):
         world.add_component(skull, Velocity(
             random.randint(10, 20), random.randint(10, 20)))
         world.add_component(skull, AngularVelocity(10))
-        world.add_component(skull, Sprite(image_name="red_skull.png",
-                                          image=skull_image, rect=skull_image.get_rect()))
+        world.add_component(skull, Sprite(image_name="red_skull.png"))
         world.add_component(skull, Agent(name="Skull"))
 
         blue_skull = world.create_entity()
         world.add_component(blue_skull, Position(100, 300))
-        world.add_component(blue_skull, Sprite(image_name="blue_skull.png",
-                                               image=blue_skull_image, rect=blue_skull_image.get_rect()))
+        world.add_component(blue_skull, Sprite(image_name="blue_skull.png"))
         world.add_component(blue_skull, Agent(name="Blue Skull"))
 
         chicken = world.create_entity()
         world.add_component(chicken, Position(50, 100))
-        world.add_component(chicken, Sprite(image_name="chicken.png",
-                                            image=chicken_image, rect=chicken_image.get_rect()))
+        world.add_component(chicken, Sprite(image_name="chicken.png"))
         world.add_component(chicken, chicken_flap_anim)
         world.add_component(chicken, Velocity())
         world.add_component(chicken, Scale(2, 2))
@@ -199,14 +197,12 @@ def init(screen, world):
         ship = world.create_entity()
         world.add_component(ship, Position(50, 200))
         world.add_component(ship, Velocity())
-        world.add_component(ship, Sprite(image_name="ship1.png",
-                            image=assets.load_image("ship1.png"),
-                            rect=assets.load_image("ship1.png").get_rect()))
+        world.add_component(ship, Sprite(image_name="ship1.png"))
         world.add_component(ship, Player(name="Starman"))
         
         thruster = world.create_entity()
         world.add_component(thruster, Position(50, 200))
-        world.add_component(thruster, Sprite(image_name="Thruster_01.png", image=assets.load_image("Thruster_01.png"), anchor_x="left", depth=-1))
+        world.add_component(thruster, Sprite(image_name="Thruster_01.png", anchor_x="left", depth=-1))
         world.add_component(thruster, thruster_anim)
         world.add_component(thruster, MountPoint(parent=ship, x = -24, y = 0))
         world.add_component(thruster, Thruster(power = 50, owner = ship))
@@ -215,6 +211,10 @@ def init(screen, world):
         world.add_component(text1, Position(screen.get_width() // 2, 24))
         world.add_component(text1, Text(text="Asteroids!",
                             font="PressStart2P-Regular.ttf", size=16))
+        
+        bg = world.create_entity()
+        world.add_component(bg, Position(0, 0))
+        world.add_component(bg, BackgroundImage(image_name="starfield6.png", anchor_x=0, anchor_y=0, repeat_x=True, repeat_y=True))
 
 
 def start():

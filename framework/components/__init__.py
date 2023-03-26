@@ -104,3 +104,24 @@ class Agent(YAMLObject):
 class Player(YAMLObject):
     yaml_tag = "!Player"
     name: str = "Player"
+    
+@component
+class BackgroundImage(YAMLObject):
+    yaml_tag = "!BackgroundImage"
+    image: pygame.Surface = field(repr=False, default=None)
+    image_name: str = ""
+    rect: pygame.Rect = None
+    anchor_x: float = 0.5
+    anchor_y: float = 0.5
+    depth: int = 0
+    enabled: bool = True
+    stretch: bool = False
+    repeat_x: bool = False
+    repeat_y: bool = False
+
+    # this is to prevent the image from being pickled (or trying and failing)
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['image']
+        del state['rect']
+        return state

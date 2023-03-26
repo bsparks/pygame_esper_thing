@@ -5,9 +5,18 @@ from framework.ecs import Processor
 
 
 class SpriteRenderer(Processor):
-    def __init__(self, screen):
+    def __init__(self, screen, assets):
         super().__init__()
         self.screen = screen
+        self.assets = assets
+        self.add_listener("component_added", self.on_component_added)
+        
+    def on_component_added(self, entity, component):
+        if isinstance(component, Sprite):
+            # print("sprite component added", entity, component)
+            if component.image is None:
+                component.image = self.assets.load_image(component.image_name)
+                component.rect = component.image.get_rect()
 
     def rotate_image(self, image, angle, anchor=(0, 0)):
         # Calculate the center of the image based on the anchor
