@@ -7,7 +7,7 @@ from dataclasses import dataclass as component
 from framework.ecs import World, Processor
 from framework.viewport import Viewport
 from framework.asset_cache import AssetCache
-from components import Wiggle
+from components import Thruster, Wiggle
 from framework.components import AngularVelocity, Animation, MountPoint, Player, Position, Sprite, Agent, Text, Velocity, Scale
 from framework.systems import InputManager, SpriteRenderer, SpriteAnimator, TextRenderer, MountingSystem
 
@@ -38,6 +38,22 @@ class Controller(Processor):
     def control_player_ship(self, dt):
         for ent, (player, pos, vel) in self.world.get_components(Player, Position, Velocity):
             thrust = 50
+            my_thruster = -1
+            my_thruster_c = None
+            my_thruster_sprite = None
+            for t_ent, (thruster) in self.world.get_component(Thruster):
+                if thruster.owner == ent:
+                    thrust = thruster.power
+                    my_thruster = t_ent
+                    my_thruster_c = thruster
+                    break # only one thruster per ship rn
+            if my_thruster != -1:
+                if not my_thruster_c.enabled:
+                    return
+                my_thruster_sprite = self.world.try_component(my_thruster, Sprite)
+                if my_thruster_sprite is not None:
+                    my_thruster_sprite.enabled = False
+                
             # the pos.angle is in degrees, and is the forward direction of the ship
             # the ship starts at 0 degrees, which is to the right, and the sprite is facing right
             angle_radians = math.radians(pos.angle)
@@ -47,10 +63,14 @@ class Controller(Processor):
             if self.input.key_down(pygame.K_UP):
                 vel.x += vel_x
                 vel.y += vel_y
+                if my_thruster_sprite is not None:
+                    my_thruster_sprite.enabled = True
             if self.input.key_down(pygame.K_DOWN):
                 # reverse thrust
                 vel.x -= vel_x
                 vel.y -= vel_y
+                if my_thruster_sprite is not None:
+                    my_thruster_sprite.enabled = True
             if self.input.key_down(pygame.K_LEFT):
                 pos.angle += 5
             if self.input.key_down(pygame.K_RIGHT):
@@ -189,6 +209,7 @@ def init(screen, world):
         world.add_component(thruster, Sprite(image_name="Thruster_01.png", image=assets.load_image("Thruster_01.png"), anchor_x="left", depth=-1))
         world.add_component(thruster, thruster_anim)
         world.add_component(thruster, MountPoint(parent=ship, x = -24, y = 0))
+        world.add_component(thruster, Thruster(power = 50, owner = ship))
 
         text1 = world.create_entity()
         world.add_component(text1, Position(screen.get_width() // 2, 24))

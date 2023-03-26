@@ -21,7 +21,8 @@ class SpriteRenderer(Processor):
         rect = rotated_image.get_rect(center=center)
 
         # Create a new surface and blit the rotated image onto it
-        new_surface = pygame.Surface(rect.size, pygame.SRCALPHA).convert_alpha()
+        new_surface = pygame.Surface(
+            rect.size, pygame.SRCALPHA).convert_alpha()
         new_surface.blit(rotated_image, rect)
 
         return new_surface
@@ -29,6 +30,9 @@ class SpriteRenderer(Processor):
     def process(self, dt, events):
         blits = []
         for ent, (pos, sprite) in self.world.get_components(Position, Sprite):
+            if not sprite.enabled:
+                continue
+
             image = sprite.image
             scale = self.world.try_component(ent, Scale)
             if scale is not None:
@@ -38,7 +42,8 @@ class SpriteRenderer(Processor):
             if pos.angle != 0:
                 anchor_x = 0 if sprite.anchor_x == "left" else 0.5 if sprite.anchor_x == "center" else 1
                 anchor_y = 0 if sprite.anchor_y == "top" else 0.5 if sprite.anchor_y == "center" else 1
-                image = self.rotate_image(image, pos.angle, (anchor_x, anchor_y))
+                image = self.rotate_image(
+                    image, pos.angle, (anchor_x, anchor_y))
             sprite.rect = image.get_rect()
             # offset the sprite's rect based on the anchor
             px, py = pos.x, pos.y

@@ -68,6 +68,7 @@ class Sprite(YAMLObject):
     anchor_x: str = "center"
     anchor_y: str = "center"
     depth: int = 0
+    enabled: bool = True
 
     # this is to prevent the image from being pickled (or trying and failing)
     def __getstate__(self):
