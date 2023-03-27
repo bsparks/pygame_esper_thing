@@ -125,3 +125,39 @@ class BackgroundImage(YAMLObject):
         del state['image']
         del state['rect']
         return state
+    
+@component
+class Grid(YAMLObject):
+    yaml_tag = "!Grid"
+    cell_size: int = 32
+    num_cells_x: int = 0
+    num_cells_y: int = 0
+    cells: list = field(default_factory=list)
+    
+@component
+class Audio(YAMLObject):
+    yaml_tag = "!Audio"
+    sound: pygame.mixer.Sound = field(repr=False, default=None)
+    sound_name: str = ""
+    volume: float = 1.0
+    playing: bool = False
+    loop: bool = False
+    channel: int = 0
+    play: bool = False
+    stop: bool = False
+
+    # this is to prevent the image from being pickled (or trying and failing)
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['sound']
+        return state
+    
+@component
+class Music(YAMLObject):
+    yaml_tag = "!Music"
+    music_name: str = ""
+    volume: float = 1.0
+    playing: bool = False
+    loop: bool = False
+    play: bool = False
+    stop: bool = False
