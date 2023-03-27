@@ -1,5 +1,6 @@
 import math
 import pygame
+import yaml
 from asteroids.components import Thruster, Wiggle
 from framework.components import Agent, Player, Position, Sprite, Velocity
 from framework.ecs import Processor
@@ -7,9 +8,11 @@ from framework.systems.input_mgr import InputManager
 
 
 class Controller(Processor):
-    def __init__(self):
+    def __init__(self, screen, assets):
         super().__init__()
         self.input = None
+        self.screen = screen
+        self.assets = assets
 
     def toggle_agent_wiggle(self):
         for ent, (agent) in self.world.get_components(Agent):
@@ -67,6 +70,7 @@ class Controller(Processor):
             self.control_player_ship(dt)
             if self.input.key_pressed(pygame.K_SPACE):
                 self.toggle_agent_wiggle()
+                self.screen.shake(1, 5)
             if self.input.key_pressed(pygame.K_F5):
                 ents = self.world._entities
                 print(f"Entities: {ents}")

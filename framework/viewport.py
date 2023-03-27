@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 """
@@ -18,8 +19,22 @@ class Viewport:
         self.scaled_surface = pygame.Surface(
             (self.width * self.scale, self.height * self.scale))
         self.zoomed_surface = None
+        self.shake_duration = 0
+        self.shake_magnitude = 0
+        self.shake_timer = 0
 
-    def update(self):
+    def update(self, dt):
+        if self.shake_duration > 0:
+            self.shake_timer += dt
+            mag_x = random.randint(-self.shake_magnitude, self.shake_magnitude)
+            mag_y = random.randint(-self.shake_magnitude, self.shake_magnitude)
+            (self.x, self.y) = (mag_x, mag_y)
+            if self.shake_timer >= self.shake_duration:
+                self.shake_duration = 0
+                self.shake_magnitude = 0
+                self.shake_timer = 0
+                self.x = 0
+                self.y = 0
         pygame.transform.scale(self.screen_surface, (self.width *
                                self.scale, self.height * self.scale), self.scaled_surface)
 
@@ -60,3 +75,8 @@ class Viewport:
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def shake(self, duration, magnitude):
+        self.shake_duration = duration
+        self.shake_magnitude = magnitude
+        self.shake_timer = 0

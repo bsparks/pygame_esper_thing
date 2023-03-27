@@ -45,7 +45,7 @@ def init(screen, world):
     )
 
     world.add_processor(InputManager())
-    world.add_processor(PlayerController())
+    world.add_processor(PlayerController(screen, assets))
     world.add_processor(DestroySystem())
     world.add_processor(AsteroidsPhysics(screen))
     world.add_processor(BackgroundSystem(screen, assets))
@@ -149,7 +149,7 @@ def start():
                     running = False
 
         # update the viewport to get the scaled surface setup
-        viewport.update()
+        viewport.update(dt)
 
         # clear the viewport with black
         viewport.fill((0, 0, 0))
@@ -158,7 +158,7 @@ def start():
         world.process(dt, events)
 
         # draw the scaled surface onto the screen
-        screen.blit(viewport.get_render_surface(), (0, 0))
+        screen.blit(viewport.get_render_surface(), viewport.get_rect())
 
         pygame.display.flip()
 
