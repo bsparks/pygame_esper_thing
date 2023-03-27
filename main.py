@@ -79,6 +79,17 @@ def init(screen, world):
                 random.randint(-10, 20), random.randint(-10, 20)))
             world.add_component(
                 xl_asteroid, AngularVelocity(random.randint(-10, 10)))
+            
+        for i in range(5):
+            asteroid = world.create_entity()
+            world.add_component(asteroid, Position(
+                random.randint(-20, 500), random.randint(-20, 500)))
+            world.add_component(asteroid, Sprite(
+                image_name="asteroid_l.png"))
+            world.add_component(asteroid, Velocity(
+                random.randint(-10, 20), random.randint(-10, 20)))
+            world.add_component(
+                asteroid, AngularVelocity(random.randint(-10, 10)))
 
         ship = world.create_entity()
         world.add_component(ship, Position(50, 200))
