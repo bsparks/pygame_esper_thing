@@ -86,6 +86,7 @@ class Sprite(YAMLObject):
 @component
 class Animation(YAMLObject):
     yaml_tag = "!Animation"
+    name: str = ""
     frames: list = field(default_factory=list)
     speed: float = 0.1
     frame: int = 0

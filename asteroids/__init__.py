@@ -48,7 +48,7 @@ def init_game(world, screen, assets):
     world.add_processor(AsteroidsPhysics(screen))
     world.add_processor(BackgroundSystem(screen, assets))
     world.add_processor(MountingSystem())
-    world.add_processor(SpriteAnimator())
+    world.add_processor(SpriteAnimator(screen, assets))
     world.add_processor(SpriteRenderer(screen, assets))
     world.add_processor(TextRenderer(screen, assets))
 

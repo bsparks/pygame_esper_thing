@@ -45,7 +45,7 @@ class TextRenderer(Processor):
             image = text.image
             text_changed = self.texts.get(ent) != text.text
             if image is None or text_changed:
-                print(f"TextRenderer: {ent} {pos} {text} {text_changed}")
+                # print(f"TextRenderer: {ent} {pos} {text} {text_changed}")
                 image = self.create_text_image(ent, text)
 
             scale = self.world.try_component(ent, Scale)

@@ -2,7 +2,7 @@ from framework.systems import (AudioSystem, BackgroundSystem, InputManager,
                                SpriteAnimator, SpriteRenderer, TextRenderer,
                                DestroySystem)
 from .player import PlayerController
-from framework.components import Music, Player, Position, Text, Score
+from framework.components import Music, Player, Position, Text, Score, Sprite, Animation
 
 FONT_NAME = "PressStart2P-Regular.ttf"
 FONT_SIZE = 32
@@ -14,7 +14,7 @@ def init_game(world, screen, assets):
     world.add_processor(PlayerController(screen, assets))
     world.add_processor(DestroySystem())
     world.add_processor(BackgroundSystem(screen, assets))
-    world.add_processor(SpriteAnimator())
+    world.add_processor(SpriteAnimator(screen, assets))
     world.add_processor(SpriteRenderer(screen, assets))
     world.add_processor(TextRenderer(screen, assets))
 
@@ -41,3 +41,5 @@ def init_game(world, screen, assets):
     world.add_component(player, Player(name="Pacman"))
     world.add_component(player, Position(14*32, 26.5*32))
     world.add_component(player, Score(text_entity=score))
+    world.add_component(player, Sprite(image_name="pacman.png"))
+    world.add_component(player, Animation(name="pacman_move_right", playing=True))

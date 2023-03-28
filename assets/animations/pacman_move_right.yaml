@@ -1,0 +1,9 @@
+frames:
+- 0
+- 1
+- 2
+image_name: pacman.png
+loop: true
+name: pacman_move_right
+size: 50
+speed: 10
