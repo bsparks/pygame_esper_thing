@@ -10,13 +10,18 @@ class TextRenderer(Processor):
         self.screen = screen
         self.assets = assets
         self.add_listener("component_added", self.on_component_added)
-        
+        self.texts = {}
+
     def on_component_added(self, entity, component):
         if isinstance(component, Text):
-            # print("text component added", entity, component)
-            if component.image is None:
-                component.image = self.assets.create_text(
-                    component.text, component.font, component.size, component.color)
+            self.create_text_image(entity, component)
+
+    def create_text_image(self, entity, component):
+        # print("text component added", entity, component)
+        self.texts[entity] = component.text
+        component.image = self.assets.create_text(
+            component.text, component.font, component.size, component.color, cache=component.cache)
+        return component.image
 
     def rotate_image(self, image, angle):
         # Calculate the center of the image
@@ -38,9 +43,10 @@ class TextRenderer(Processor):
         blits = []
         for ent, (pos, text) in self.world.get_components(Position, Text):
             image = text.image
-            if image is None:
-                print("text image is None", ent, text)
-                continue
+            text_changed = self.texts.get(ent) != text.text
+            if image is None or text_changed:
+                print(f"TextRenderer: {ent} {pos} {text} {text_changed}")
+                image = self.create_text_image(ent, text)
 
             scale = self.world.try_component(ent, Scale)
             if scale is not None:
@@ -48,17 +54,13 @@ class TextRenderer(Processor):
                 image = pygame.transform.scale_by(image, (scale.x, scale.y))
             if pos.angle != 0:
                 image = self.rotate_image(image, pos.angle)
+
             # offset the text's rect based on the anchor
             px, py = pos.x, pos.y
             width, height = text.image.get_size()
-            if text.anchor_x == "center":
-                px -= width // 2
-            elif text.anchor_x == "right":
-                px -= width
-            if text.anchor_y == "center":
-                py -= height // 2
-            elif text.anchor_y == "bottom":
-                py -= height
+            px -= width * text.anchor_x
+            py -= height * text.anchor_y
+
             blits.append((image, (px, py), text.depth))
         # sort by depth
         blits.sort(key=lambda x: x[2])

@@ -85,11 +85,14 @@ class AssetCache:
 
         return self.fonts[font_cache_key]
     
-    def create_text(self, text, font = "Arial", size = 30, color = "white"):
+    def create_text(self, text, font = "Arial", size = 30, color = "white", cache = True):
         text_cache_key = f"{text}-{font}-{size}-{color}"
-        if text_cache_key in self.texts:
+        # print(f"Creating text: {text_cache_key}")
+        if cache and text_cache_key in self.texts:
             return self.texts[text_cache_key]
         font = self.create_font(font, size)
         color = pygame.Color(color)
-        self.texts[text_cache_key] = font.render(text, True, color)
-        return self.texts[text_cache_key]
+        if cache:
+            self.texts[text_cache_key] = font.render(text, True, color)
+            return self.texts[text_cache_key]
+        return font.render(text, True, color)

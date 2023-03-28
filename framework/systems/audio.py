@@ -14,7 +14,7 @@ class AudioSystem(Processor):
                 component.sound = self.assets.load_sound(component.sound_name)
 
     def process(self, world, dt):
-        for ent, (audio) in self.world.get_components(Audio):
+        for ent, (audio) in self.world.get_component(Audio):
             if audio.play and not audio.playing:
                 audio.play = False
                 audio.playing = True
@@ -25,7 +25,7 @@ class AudioSystem(Processor):
                 audio.playing = False
                 audio.sound.stop()
 
-        for ent, (music) in self.world.get_components(Music):
+        for ent, (music) in self.world.get_component(Music):
             # TODO: what happens if there is more than one music entity?
             if music.play and not music.playing:
                 music.play = False

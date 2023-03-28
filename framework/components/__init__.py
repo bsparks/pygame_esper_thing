@@ -1,7 +1,10 @@
-import pygame
-from dataclasses import dataclass as component, field
+from dataclasses import dataclass as component
+from dataclasses import field
 
+import pygame
 from yaml import YAMLObject
+
+from .destroy import *
 
 
 @component
@@ -10,7 +13,8 @@ class Position(YAMLObject):
     x: float = 0
     y: float = 0
     angle: float = 0
-    
+
+
 @component
 class MountPoint(YAMLObject):
     yaml_tag = "!MountPoint"
@@ -49,10 +53,11 @@ class Text(YAMLObject):
     font: str = "default"
     color: tuple = (255, 255, 255)
     size: int = 24
-    anchor_x: str = "center"
-    anchor_y: str = "center"
+    anchor_x: float = 0.5
+    anchor_y: float = 0.5
     depth: int = 0
-    
+    cache: bool = True
+
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['image']
@@ -104,7 +109,8 @@ class Agent(YAMLObject):
 class Player(YAMLObject):
     yaml_tag = "!Player"
     name: str = "Player"
-    
+
+
 @component
 class BackgroundImage(YAMLObject):
     yaml_tag = "!BackgroundImage"
@@ -125,7 +131,8 @@ class BackgroundImage(YAMLObject):
         del state['image']
         del state['rect']
         return state
-    
+
+
 @component
 class Grid(YAMLObject):
     yaml_tag = "!Grid"
@@ -133,7 +140,8 @@ class Grid(YAMLObject):
     num_cells_x: int = 0
     num_cells_y: int = 0
     cells: list = field(default_factory=list)
-    
+
+
 @component
 class Audio(YAMLObject):
     yaml_tag = "!Audio"
@@ -151,7 +159,8 @@ class Audio(YAMLObject):
         state = self.__dict__.copy()
         del state['sound']
         return state
-    
+
+
 @component
 class Music(YAMLObject):
     yaml_tag = "!Music"
@@ -161,3 +170,10 @@ class Music(YAMLObject):
     loop: bool = False
     play: bool = False
     stop: bool = False
+
+
+@component
+class Score(YAMLObject):
+    yaml_tag = "!Score"
+    value: int = 0
+    text_entity: int = -1
