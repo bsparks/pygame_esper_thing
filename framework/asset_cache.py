@@ -96,3 +96,8 @@ class AssetCache:
             self.texts[text_cache_key] = font.render(text, True, color)
             return self.texts[text_cache_key]
         return font.render(text, True, color)
+    
+    def load_tileset_data(self, name):
+        path = os.path.join(f"{self.basePath}/tilesets/", f"{name}.yml")
+        data = yaml.load(open(path, "r"), Loader=yaml.FullLoader)
+        return data

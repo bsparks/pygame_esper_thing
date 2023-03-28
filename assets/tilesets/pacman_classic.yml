@@ -1,0 +1,3 @@
+name: pacman_classic
+tile_size: 32
+image_name: maze_tiles.png
