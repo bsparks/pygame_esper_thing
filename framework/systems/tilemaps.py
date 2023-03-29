@@ -56,6 +56,13 @@ class TileMap:
     def set_tile(self, column, row, tile_index):
         index = row * self.width + column
         self.data[index] = tile_index
+        
+    def foreach_tile(self, callback):
+        for row in range(self.height):
+            for column in range(self.width):
+                tile_id = self.get_tile(column, row)
+                tile = self.tileset.tiles[tile_id]
+                callback(tile, tile_id, column, row)
 
 
 class TileMapRenderer(Processor):
@@ -74,15 +81,16 @@ class TileMapRenderer(Processor):
         tileset = self.tilesets.get(tilemap.tileset, None)
         if tileset is None:
             data = self.assets.load_tileset_data(tilemap.tileset)
-            tileset = TileSet(tilemap.tileset, data.tile_size,
-                              self.assets.load_image(data.image_name))
+            print(f"Loading tileset {tilemap.tileset}...", data)
+            tileset = TileSet(tilemap.tileset, data["tile_size"],
+                              self.assets.load_image(data["image_name"]))
             tileset.populate()
             self.tilesets[tilemap.tileset] = tileset
         tilemap.tilemap = TileMap(
             tilemap.name, tileset.tile_size, tileset, tilemap.width, tilemap.height, tilemap.data)
 
     def render_tilemap(self, tilemap, pos):
-        pass
+        tilemap.tilemap.foreach_tile(lambda tile, tile_id, column, row: self.screen.blit(tile, (pos.x + column * tilemap.tile_size, pos.y + row * tilemap.tile_size)))
 
     def process(self, dt, events):
         for ent, (tilemap, pos) in self.world.get_components(TileMapComponent, Position):

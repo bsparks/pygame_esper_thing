@@ -141,27 +141,21 @@ class Grid(YAMLObject):
     num_cells_x: int = 0
     num_cells_y: int = 0
     cells: list = field(default_factory=list)
-    
+
+
 @component
 class TileMap(YAMLObject):
     yaml_tag = "!TileMap"
+    name: str = ""
     tileset: str = ""
+    width: int = 1
+    height: int = 1
     tile_size: int = 32
-    tiles: list = field(default_factory=list)
-    image: pygame.Surface = field(repr=False, default=None)
-    image_name: str = ""
-    rect: pygame.Rect = None
+    data: list = field(default_factory=list)
     anchor_x: float = 0
     anchor_y: float = 0
     depth: int = 0
     enabled: bool = True
-
-    # this is to prevent the image from being pickled (or trying and failing)
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['image']
-        del state['rect']
-        return state
 
 
 @component
