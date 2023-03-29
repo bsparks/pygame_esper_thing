@@ -2,7 +2,7 @@ from framework.systems import (AudioSystem, BackgroundSystem, InputManager,
                                SpriteAnimator, SpriteRenderer, TextRenderer,
                                DestroySystem, TileMapRenderer)
 from .player import PlayerController
-from framework.components import Music, Player, Position, Text, Score, Sprite, Animation, TileMap
+from framework.components import Agent, Music, Player, Position, Text, Score, Sprite, Animation, TileMap
 
 FONT_NAME = "PressStart2P-Regular.ttf"
 FONT_SIZE = 32
@@ -81,3 +81,27 @@ def init_game(world, screen, assets):
     world.add_component(player, Sprite(image_name="pacman.png"))
     world.add_component(player, Animation(
         name="pacman_move_right", playing=True))
+    
+    blinky = world.create_entity()
+    world.add_component(blinky, Agent(name="Blinky"))
+    world.add_component(blinky, Position(14*32, 15*32))
+    world.add_component(blinky, Sprite(image_name="ghosts.png"))
+    world.add_component(blinky, Animation(name="blinky_move_left", playing=True))
+    
+    pinky = world.create_entity()
+    world.add_component(pinky, Agent(name="Pinky"))
+    world.add_component(pinky, Position(14*32, 17*32))
+    world.add_component(pinky, Sprite(image_name="ghosts.png"))
+    world.add_component(pinky, Animation(name="pinky_move_right", playing=True))
+    
+    inky = world.create_entity()
+    world.add_component(inky, Agent(name="Inky"))
+    world.add_component(inky, Position(12*32, 17*32))
+    world.add_component(inky, Sprite(image_name="ghosts.png"))
+    world.add_component(inky, Animation(name="inky_move_right", playing=True))
+    
+    clyde = world.create_entity()
+    world.add_component(clyde, Agent(name="Clyde"))
+    world.add_component(clyde, Position(16*32, 17*32))
+    world.add_component(clyde, Sprite(image_name="ghosts.png"))
+    world.add_component(clyde, Animation(name="clyde_move_right", playing=True))

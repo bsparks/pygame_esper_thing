@@ -1,0 +1,8 @@
+frames:
+- 2
+- 10
+image_name: ghosts.png
+loop: true
+name: inky_move_right
+size: 50
+speed: 10

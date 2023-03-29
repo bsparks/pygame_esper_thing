@@ -1,0 +1,8 @@
+frames:
+- 4
+- 12
+name: ghost_scared
+image_name: ghosts.png
+loop: true
+size: 50
+speed: 10

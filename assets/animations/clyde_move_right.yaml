@@ -1,0 +1,8 @@
+frames:
+- 3
+- 11
+image_name: ghosts.png
+loop: true
+name: clyde_move_right
+size: 50
+speed: 10

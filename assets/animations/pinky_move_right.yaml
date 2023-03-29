@@ -1,0 +1,8 @@
+frames:
+- 1
+- 9
+image_name: ghosts.png
+loop: true
+name: pinky_move_right
+size: 50
+speed: 10

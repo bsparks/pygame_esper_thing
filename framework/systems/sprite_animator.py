@@ -11,8 +11,17 @@ class SpriteAnimator(Processor):
 
     @staticmethod
     def create_frames(image, frames, size):
-        frames = [image.subsurface((i * size, 0, size, size)) for i in frames]
-        return frames
+        # it is assumed that the image is divided up into cells of the same size
+        width, height = image.get_size()
+        columns = width // size
+        rows = height // size
+        image_frames = []
+        for index in frames:
+            x = (index % columns) * size
+            y = (index // columns) * size
+            surface = image.subsurface((x, y, size, size))
+            image_frames.append(surface)
+        return image_frames
 
     def on_component_added(self, entity, component):
         if isinstance(component, Animation):

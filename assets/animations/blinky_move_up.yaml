@@ -1,0 +1,8 @@
+frames:
+- 48
+- 56
+image_name: ghosts.png
+loop: true
+name: blinky_move_up
+size: 50
+speed: 10
