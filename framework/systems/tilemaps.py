@@ -81,7 +81,7 @@ class TileMapRenderer(Processor):
         tileset = self.tilesets.get(tilemap.tileset, None)
         if tileset is None:
             data = self.assets.load_tileset_data(tilemap.tileset)
-            print(f"Loading tileset {tilemap.tileset}...", data)
+            # print(f"Loading tileset {tilemap.tileset}...", data)
             tileset = TileSet(tilemap.tileset, data["tile_size"],
                               self.assets.load_image(data["image_name"]))
             tileset.populate()
